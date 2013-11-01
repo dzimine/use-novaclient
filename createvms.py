@@ -2,7 +2,7 @@ import sys
 import time
 import keystoneclient.v2_0.client as keystoneclient
 import novaclient.v1_1.client as novaclient
-import quantumclient.v2_0.client as quantumclient
+import neutronclient.v2_0.client as neutronclient
 from credentials import *
 
 '''
@@ -10,6 +10,7 @@ from credentials import *
     using the user / project configured in stackrc file 
 '''
 
+INSTANCE_NAME = 'fiva'
 NETWORK_NAME='route-66'
 INSTANCE_COUNT = 3
 
@@ -30,10 +31,11 @@ images = nova.images.list(detailed=False)
 print images 
 
 # get networks from quantum
-
+print "Find or create network..."
 network_url = keystone.service_catalog.url_for(service_type='network')
-neutron = quantumclient.Client(endpoint_url=network_url, token=keystone.auth_token)
+neutron = neutronclient.Client(endpoint_url=network_url, token=keystone.auth_token)
 networks = neutron.list_networks()['networks']
+print "Networks: "
 print [(nw['name'],nw['id'])for nw in networks]
 
 net = None
@@ -66,10 +68,10 @@ for instance in instances:
 
 
 print "Creating instances: "
-instance = nova.servers.create('multi', images[0], flavors[0]
+instance = nova.servers.create(INSTANCE_NAME, images[0], flavors[0]
                 # The actual number will be based on the quota. 
                 # see http://www.gossamer-threads.com/lists/openstack/dev/17629
-                ,min_count=1, INSTANCE_COUNT=1
+                ,min_count=1, max_count=INSTANCE_COUNT
                 # if nics not specified, will connect to all project networks
                 ,nics=[{'net-id': net_id}]
           )

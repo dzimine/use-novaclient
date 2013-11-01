@@ -1,6 +1,6 @@
 python-keystoneclient
 python-glanceclient
 python-novaclient
-python-quantumclient
+python-neutronclient
 python-cinderclient
 python-swiftclient
